@@ -114,3 +114,10 @@ jobs:
 2. Create web project (or solution and project)
 3. Create an action (.github/workflows/pipelinename.yaml) -> Paste sample in (correct env when needed)
 4. Push (error!!!)
+
+
+5. Goto Azure Web App (Overview)
+6. Download **Publish Profile**
+7. Create new *github* secret (settings->secrets)
+8. Name: AZURE_WEBAPP_PUBLISH_PROFILE value: the content of the downloaded **Publish Profile**
+9. Re-run pipeline
