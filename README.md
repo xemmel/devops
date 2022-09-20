@@ -59,7 +59,7 @@ stages:
 5. In Root pipeline (azure-pipelines.yaml) (copy code, change variables where needed)
 6. Add, Commit, Push check Pipeline starter (error)
 
-7. Service Connection (Subscription, allow all pipelines, name!)
+7. Project Settings -> Service Connection  (ARM Azure Resource Manager, Recommended (automatic) (Subscription, allow all pipelines, name!)
 8. Pipeline -> EDIT -> Variables (mysubscription -> name!)
 
 9. Run Pipeline Again
