@@ -52,6 +52,7 @@ stages:
 4. Create a web project in c#
    - dotnet new sln -o [name]
    - in the solution folder
+   - dotnet new gitignore
    - dotnet new webapp -o [name]
    - dotnet build
 
