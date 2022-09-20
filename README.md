@@ -41,6 +41,49 @@ stages:
 
 ```
 
+
+### Github action
+
+```yaml
+
+name: thefirstworkflow
+
+on:
+  push:
+    branches: [ "main" ]
+
+
+env:
+  WEBPROJECT_PATH: ./thegithubwebapp
+  DOTNET_VERSION: 6.0.x
+  PUBLISH_FOLDER: './publishapp'
+  APP_NAME: devopsteknologisk
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run Hello world
+        run: echo 'Hello World!!'
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      - name: Install dependency
+        run: dotnet restore ${{ env.WEBPROJECT_PATH }}
+      - name: Build
+        run: dotnet build ${{ env.WEBPROJECT_PATH }} --configuration Release --no-restore
+      - name: Publish
+        run: dotnet publish ${{ env.WEBPROJECT_PATH }} --configuration Release -o ${{env.PUBLISH_FOLDER}}
+      - name: Deploy
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: ${{ env.APP_NAME }}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: ${{ env.PUBLISH_FOLDER }}
+
+```
+
 ### Exercises
 
 #### Deploy Azure Web App
@@ -63,3 +106,11 @@ stages:
 8. Pipeline -> EDIT -> Variables (mysubscription -> name!)
 
 9. Run Pipeline Again
+
+
+#### Deploy github action
+
+1. New github repo if needed
+2. Create web project (or solution and project)
+3. Create an action (.github/workflows/pipelinename.yaml) -> Paste sample in (correct env when needed)
+4. Push (error!!!)
