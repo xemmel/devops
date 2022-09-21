@@ -200,3 +200,61 @@ jobs:
 8. Create a new Github *secret* called **PRINCIPAL** and paste the *JSON* into the value. Also delete the old secret holding the *Publish Profile*
 
 9. Make a change to your web app and push the changes, follow the action execution and verify that the changes were deployed
+
+
+
+### Use Key Vault in Pipeline
+
+1. Create Key Vault in Azure
+2. Create a Secret with a value, verify that you can see that value afterwards
+3. Change Access Control to RBAC
+4. Verify that you no longer can access the secret
+5. Give yourself Key Vault Admin Role on the Key Vault
+6. Verify that you now can see the secret again
+
+7. Clone the repo
+8. create an *azure-pipelines.yaml*
+
+```yaml
+
+trigger:
+  - master
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  keyVaultName: devopsvaultmlc
+
+steps:
+  - task: AzureKeyVault@2
+    inputs:
+      azureSubscription: $(thesubscription)
+      KeyVaultName: $(keyVaultName)
+      SecretsFilter: '*'
+      RunAsPreJob: false
+  - task: CmdLine@2
+    inputs:
+      script: 'echo $(ftppassword) > secret.txt'
+    
+  - task: CopyFiles@2
+    inputs:
+      Contents: secret.txt
+      targetFolder: '$(Build.ArtifactStagingDirectory)'
+    
+  - task: PublishBuildArtifacts@1
+    inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+      ArtifactName: 'drop'
+      publishLocation: 'Container'
+
+     
+
+```
+
+
+10. Push
+11. Create new Pipeline point to .yaml file
+12. create a variable in the Pipeline (thesubscription -> [name of your Service Connection]) 
+13. Run Pipeline (error!!!)
+
