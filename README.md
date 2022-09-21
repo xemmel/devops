@@ -121,3 +121,82 @@ jobs:
 7. Create new *github* secret (settings->secrets)
 8. Name: AZURE_WEBAPP_PUBLISH_PROFILE value: the content of the downloaded **Publish Profile**
 9. Re-run pipeline
+
+
+#### Change github credentials to Service Principal
+
+1. Create an *App Registration* in your **Azure AD**
+2. Under Cert & Secrets create a new *Client Secret* (Copy the secret **VALUE** into notepad)
+3. Get the ClientId from the *App Registration*
+4. Get your TenantId (AAD Id) and your Azure SubscriptionId
+5. Create *JSON* in notepad etc.
+
+```json
+
+{
+    "clientId": "...",
+    "clientSecret": "...",
+    "subscriptionId": "...",
+    "tenantId": "..."
+}
+
+```
+
+6. Grant your new *App Reg* the *Contributor* role on the **Resource Group** holding your Web App
+7. Change the Action to (variable changed might be needed)
+
+```yaml
+
+name: newactions
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  SOLUTION_PATH: ./githubgraph
+  PROJECT_PATH: ./githubgraph/githubgraph
+  BUILD_CONFIG: Release
+  PUBLISH_PATH: ./apppath
+  APPSERVICE_NAME: githubgraph
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: restore
+        run: dotnet restore ${{ env.SOLUTION_PATH }}
+      - name: build
+        run: dotnet build ${{ env.SOLUTION_PATH }} --configuration ${{ env.BUILD_CONFIG }} --no-restore
+      - name: publish
+        run: dotnet publish ${{ env.SOLUTION_PATH }} --configuration ${{ env.BUILD_CONFIG }} --output ${{ env.PUBLISH_PATH }}
+      - name: upload
+        uses: actions/upload-artifact@v2
+        with:
+          name: artifact
+          path: ${{ env.PUBLISH_PATH }}
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: download
+        uses: actions/download-artifact@v2
+        with:
+          name: artifact
+          path: ${{ env.PUBLISH_PATH }}
+      - uses: azure/login@v1
+        with:
+          creds: ${{ secrets.PRINCIPAL }} 
+      - name: deploy web app
+        uses: azure/webapps-deploy@v2
+        with: 
+          app-name: ${{ env.APPSERVICE_NAME }} 
+          package: ${{ env.PUBLISH_PATH }}
+
+```
+
+8. Create a new Github *secret* called **PRINCIPAL** and paste the *JSON* into the value. Also delete the old secret holding the *Publish Profile*
+
+9. Make a change to your web app and push the changes, follow the action execution and verify that the changes were deployed
