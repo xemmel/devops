@@ -1,0 +1,57 @@
+trigger:
+- master
+
+
+variables:
+  image: ubuntu-latest
+  location: westeurope
+  arm_location: ./templates/storageaccount.json
+
+pool:
+  vmImage: $(image)
+stages:
+- stage: Test
+  variables:
+  - group: VarGroup_Test
+  jobs:
+  - job: Everything
+    steps:
+      - task: AzureCLI@2
+        displayName: Create Resource Group
+        inputs:
+          azureSubscription: $(subscription)
+          scriptType: pscore
+          scriptLocation: inlineScript
+          inlineScript: |
+            az group create --name $(rgName) --location $(location)
+      - task: AzureCLI@2
+        displayName: Deploy Arm Template
+        inputs:
+          azureSubscription: $(subscription)
+          scriptType: pscore
+          scriptLocation: inlineScript
+          inlineScript: |
+            az deployment group create --resource-group $(rgName) --template-file $(arm_location) --parameters storageAccountName=$(saName) --parameters ./parameters/$(env)/storageaccount.json
+- stage: Prod
+  dependsOn: Test
+  variables:
+  - group: VarGroup_Prod
+  jobs:
+  - job: Everything
+    steps:
+      - task: AzureCLI@2
+        displayName: Create Resource Group
+        inputs:
+          azureSubscription: $(subscription)
+          scriptType: pscore
+          scriptLocation: inlineScript
+          inlineScript: |
+            az group create --name $(rgName) --location $(location)
+      - task: AzureCLI@2
+        displayName: Deploy Arm Template
+        inputs:
+          azureSubscription: $(subscription)
+          scriptType: pscore
+          scriptLocation: inlineScript
+          inlineScript: |
+            az deployment group create --resource-group $(rgName) --template-file $(arm_location) --parameters storageAccountName=$(saName) --parameters ./parameters/$(env)/storageaccount.json

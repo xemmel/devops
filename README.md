@@ -258,3 +258,22 @@ steps:
 12. create a variable in the Pipeline (thesubscription -> [name of your Service Connection]) 
 13. Run Pipeline (error!!!)
 
+14. In Key Vault (Access Control) -> Role Assignment (Key Vault Admin, Service Connection user)
+15. Run Pipeline
+
+
+### Arm templates
+
+1. New Devops project -> New Service Connection
+2. Get Repo locally
+3. Copy/Pastes structure/files from *Exercises/Armtemplates*
+
+4. Create Variable groups from both *VarGroup_Test* *VarGroup_Prod* Pipelines -> Library
+   - env (test/prod)
+   - rgName (....)
+   - saName (unique!!!! Storage Account Name)
+5. Check 
+6. Push code
+7. Create Pipeline
+8. Create Variable in Pipeline (subscription -> [the name of your Service Connection])
+
